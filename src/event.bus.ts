@@ -7,8 +7,11 @@ import { nameof } from "ts-simple-nameof";
 import { InvalidOperationException } from "./exceptions/invalid-operation.exception";
 import { InvalidRequestException } from "./exceptions/invalid-request.exception";
 import { ILogger } from "./interfaces/logger.interface";
+import { IEventBus } from "./event-bus.interface";
+import { injectable } from "inversify";
 
-export class EventBus {
+@injectable()
+export class EventBus implements IEventBus {
   private _subjects: Map<string, Subject<EventBase>>;
   private _logger: ILogger;
 
@@ -41,20 +44,25 @@ export class EventBus {
 
   public registerHandler(handler: EventBaseHandler<EventBase>) {
     const eventName = this.reflectEventName(handler);
-    if (!eventName) {
-      throw new InvalidRequestException("event", eventName);
-    }
-
     this.bindToSubject(handler, eventName);
   }
 
   private reflectEventName(handler: EventBaseHandler<EventBase>) {
     const metadata = Reflect.getMetadata(EVENT_KEY_HANDLER, handler);
+    if(!metadata){
+      const handlerName = this.getHandlerName(handler);
+      this._logger.error(`Not found event for handler ${handlerName}!`);
+      throw new InvalidRequestException("event",handlerName);
+    }
     return nameof(metadata);
   }
 
   private getEventName(event: EventBase): string {
     const { constructor } = event;
+    return constructor.name as string;
+  }
+  private getHandlerName(handler : EventBaseHandler<EventBase>): string{
+    const { constructor} = handler;
     return constructor.name as string;
   }
 

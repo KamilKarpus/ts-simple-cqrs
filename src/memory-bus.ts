@@ -11,6 +11,7 @@ import { RequestBaseHandler } from "./models/request-handler-interface";
 import { nameof } from "ts-simple-nameof";
 import { REQUEST_KEY_HANDLER } from "./metadate.constants";
 import { ILogger } from "./interfaces/logger.interface";
+import { InvalidRequestException } from "./exceptions/invalid-request.exception";
 
 @injectable()
 export class MemoryBus implements IMemoryBus {
@@ -30,6 +31,7 @@ export class MemoryBus implements IMemoryBus {
   public register(handler: RequestBaseHandler<RequestBase, any>) {
     const requestName = this.reflectRequestName(handler);
     if (!requestName) {
+      throw new InvalidRequestException("request", requestName);
     }
     this._handlers[requestName] = handler;
   }

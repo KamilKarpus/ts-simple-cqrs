@@ -29,7 +29,7 @@ describe("Command and Query execution tests", () => {
 
     container.bind("__TEST__").to(TestService);
 
-    bus = new MemoryBusBuilder().addInversifyContainer(container).build();
+    bus = new MemoryBusBuilder().addInversifyContainer(container).build() as MemoryBus;
   });
   it("excute command should return changed value", async () => {
     const request = new TestRequest();
@@ -67,6 +67,7 @@ describe("Command and Query execution tests", () => {
     sinon.assert.calledOnce(service.doSomethingAmazing)
     
   });
+
   afterEach(() => {
     bus = null;
   });

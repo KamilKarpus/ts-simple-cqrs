@@ -2,6 +2,7 @@ import { inject, injectable } from "inversify";
 import { CommnadHandler, QueryHandler } from "../src";
 import { EventHandler } from "../src/decorators/event-decorator";
 import { EventBaseHandler } from "../src/models/event-handlers.interface";
+import { EventBase } from "../src/models/event.interface";
 import { CommandBaseHandler, CommandBaseHandlerWithResponse, QueryBaseHandler } from "../src/models/request-handler-interface";
 import { ITestService, ServiceResponse, TestService } from "./test.service";
 
@@ -89,5 +90,30 @@ export class TestEventHandler implements EventBaseHandler<TestEvent>{
     async handle(event: TestEvent): Promise<void> {
         this.service.doSomethingAmazing();
     }
+
+}
+
+
+@injectable()
+@EventHandler(TestEvent)
+export class TestEventHandler2 implements EventBaseHandler<TestEvent>{
+    constructor(@inject("__TEST__") private readonly service : ITestService){
+
+    }
+    async handle(event: TestEvent): Promise<void> {
+        this.service.doSomethingAmazing();
+    }
+
+}
+
+
+export class HandlerWithoutDecorator implements EventBaseHandler<TestEvent>{
+    handle(event: TestEvent): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+
+}
+
+export class EventWithoutHandler{
 
 }

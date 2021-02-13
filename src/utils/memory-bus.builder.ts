@@ -3,9 +3,10 @@ import { RequestBase } from "../models/request-interface";
 import { MemoryBus } from "../memory-bus";
 import { BuilderBase } from "./builder.base";
 import { Types } from "../types";
+import { IMemoryBus } from "../memory-bus.interface";
 
-export class MemoryBusBuilder extends BuilderBase<MemoryBus> {
-  build(): MemoryBus {
+export class MemoryBusBuilder extends BuilderBase<IMemoryBus> {
+  build(): IMemoryBus {
     const bus = new MemoryBus(this._logger);
 
     this.checkResolver();
