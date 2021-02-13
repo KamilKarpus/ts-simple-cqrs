@@ -30,15 +30,22 @@ export class MemoryBus implements IMemoryBus {
 
   public register(handler: RequestBaseHandler<RequestBase, any>) {
     const requestName = this.reflectRequestName(handler);
-    if (!requestName) {
-      throw new InvalidRequestException("request", requestName);
-    }
     this._handlers[requestName] = handler;
   }
 
   private reflectRequestName(handler: RequestBaseHandler<RequestBase, any>) {
     const metadata = Reflect.getMetadata(REQUEST_KEY_HANDLER, handler);
+    if (!metadata) {
+      const handlerName = this.getHandlerName(handler);
+      this._logger.error(`Not found request for handler ${handlerName} `);
+      throw new InvalidRequestException("request", handlerName);
+    }
     return nameof(metadata);
+  }
+
+  private getHandlerName(handler: RequestBaseHandler<RequestBase, any>) {
+    const { constructor } = handler;
+    return constructor.name;
   }
 
   public excuteQuery<T>(query: QueryBase): Promise<T> {

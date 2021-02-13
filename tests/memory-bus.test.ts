@@ -1,11 +1,18 @@
 import { describe } from "mocha";
-import { assert } from "chai";
-import { MemoryBus, MemoryBusBuilder } from "../src";
+import { assert, expect } from "chai";
+import {
+  InvalidOperationException,
+  InvalidRequestException,
+  MemoryBus,
+  MemoryBusBuilder,
+  Types,
+} from "../src";
 import { Container } from "inversify";
-import { Types } from "../src/types";
 import {
   QueryWithInjectedService,
   QueryWithInjectedServiceHandler,
+  RequestHandlerWithoutDecorator,
+  RequestWithoutHandler,
   TestQuery,
   TestQueryHandler,
   TestRequest,
@@ -14,9 +21,8 @@ import {
   VoidCommand,
   VoidCommandHandler,
 } from "./test.requestst";
-import * as sinon from 'sinon';
+import * as sinon from "sinon";
 import { ServiceResponse, TestService } from "./test.service";
-
 
 describe("Command and Query execution tests", () => {
   var bus: MemoryBus;
@@ -29,7 +35,9 @@ describe("Command and Query execution tests", () => {
 
     container.bind("__TEST__").to(TestService);
 
-    bus = new MemoryBusBuilder().addInversifyContainer(container).build() as MemoryBus;
+    bus = new MemoryBusBuilder()
+      .addInversifyContainer(container)
+      .build() as MemoryBus;
   });
   it("excute command should return changed value", async () => {
     const request = new TestRequest();
@@ -57,17 +65,26 @@ describe("Command and Query execution tests", () => {
     assert.equal(true, response.state);
   });
 
-  it("execute void command should call injected service", async () =>{
+  it("execute void command should call injected service", async () => {
     let service = sinon.createStubInstance(TestService);
-    
+
     bus.register(new VoidCommandHandler(service));
 
     bus.excuteCommand(new VoidCommand());
-    
-    sinon.assert.calledOnce(service.doSomethingAmazing)
-    
+
+    sinon.assert.calledOnce(service.doSomethingAmazing);
+  });
+  it("shoud throw exception when register handler without decorator", () => {
+    expect(() => bus.register(new RequestHandlerWithoutDecorator())).to.throw(
+      InvalidRequestException
+    );
   });
 
+  it("should throw exception when handler is not registred", () => {
+    expect(() => bus.excuteCommand(new RequestWithoutHandler())).to.throw(
+      InvalidOperationException
+    );
+  });
   afterEach(() => {
     bus = null;
   });

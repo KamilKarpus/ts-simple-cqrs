@@ -1,5 +1,11 @@
-export * from './models/index';
-export * from './decorators/index';
-export { MemoryBus } from './memory-bus';
-export { IMemoryBus} from './memory-bus.interface';
-export * from './utils';
+export * from "./models/index";
+export * from "./decorators/index";
+export { MemoryBus } from "./memory-bus";
+export { IMemoryBus } from "./memory-bus.interface";
+export * from "./utils";
+export { EventBus } from "./event.bus";
+export { IEventBus } from "./event-bus.interface";
+export * from './exceptions';
+export * from './models';
+export * from './interfaces';
+export * from './types';
